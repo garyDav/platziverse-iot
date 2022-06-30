@@ -4,9 +4,9 @@ const agent = new PlatziverseAgent({
   name: 'Node.js Reloaded',
   username: 'admin',
   interval: 1000,
-  mqtt: {
+  /*mqtt: {
     host: 'mqtt://api.platziverse.space'
-  }
+  }*/
 })
 
 agent.addMetric('rss', function getRss () {

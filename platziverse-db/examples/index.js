@@ -4,10 +4,10 @@ const db = require('../')
 
 async function run () {
   const config = {
-    database: process.env.DB_NAME || 'platziverse',
+    database: process.env.DB_NAME || 'my_store',
     username: process.env.DB_USER || 'platzi',
     password: process.env.DB_PASS || 'platzi',
-    host: process.env.DB_HOST || 'localhost',
+    host: process.env.DB_HOST || '172.23.0.3',
     dialect: 'postgres'
   }
 
@@ -43,7 +43,7 @@ async function run () {
 
   const metricsByType = await Metric.findByTypeAgentUuid('memory', agent.uuid).catch(handleFatalError)
   console.log('--metrics--')
-  console.log(metricsByType)
+  console.log(metricsByType)  
 }
 
 function handleFatalError (err) {

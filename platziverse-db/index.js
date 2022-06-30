@@ -9,10 +9,11 @@ const defaults = require('defaults')
 
 module.exports = async function (config) {
   config = defaults(config, {
-    dialect: 'sqlite',
+    dialect: 'postgres',
     pool: {
       max: 10,
       min: 0,
+      require: 30000,
       idle: 10000
     },
     query: {
@@ -35,6 +36,9 @@ module.exports = async function (config) {
 
   const Agent = setupAgent(AgentModel)
   const Metric = setupMetric(MetricModel, AgentModel)
+
+  /*const Agent = {}
+  const Metric = {}*/
 
   return {
     Agent,

@@ -3,6 +3,8 @@
 const debug = require('debug')('platziverse:mqtt')
 const mosca = require('mosca')
 const redis = require('redis')
+/*const { createClient } = require('redis')
+const redis = createClient()*/
 const chalk = require('chalk')
 const db = require('platziverse-db')
 
@@ -20,15 +22,16 @@ const settings = {
 }
 
 const config = {
-  database: process.env.DB_NAME || 'platziverse',
+  database: process.env.DB_NAME || 'my_store',
   username: process.env.DB_USER || 'platzi',
   password: process.env.DB_PASS || 'platzi',
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || '172.23.0.2',
   dialect: 'postgres',
   logging: s => debug(s)
 }
 
 const server = new mosca.Server(settings)
+
 const clients = new Map()
 
 let Agent, Metric
@@ -63,6 +66,14 @@ server.on('clientDisconnected', async (client) => {
         }
       })
     })
+    /*server.publish(
+      'agent/disconnected',
+      JSON.stringify({
+        agent: {
+          uuid: agent.uuid
+        }
+      })
+    )*/
     debug(`Client (${client.id}) associated to Agent (${agent.uuid}) marked as disconnected`)
   }
 })
@@ -73,7 +84,7 @@ server.on('published', async (packet, client) => {
   switch (packet.topic) {
     case 'agent/connected':
     case 'agent/disconnected':
-      debug(`Payload: ${packet.payload}`)
+      debug(`Payload-CD: ${packet.payload}`)
       break
     case 'agent/message':
       debug(`Payload: ${packet.payload}`)
@@ -81,6 +92,7 @@ server.on('published', async (packet, client) => {
       const payload = parsePayload(packet.payload)
 
       if (payload) {
+        debug(`Payload-Parse: ${payload}`)
         payload.agent.connected = true
 
         let agent
@@ -95,7 +107,14 @@ server.on('published', async (packet, client) => {
         // Notify Agent is Connected
         if (!clients.get(client.id)) {
           clients.set(client.id, agent)
+
           server.publish({
+            topic: 'agent/connected',
+            payload: 'joder'
+          }, (obj, packet) => {
+            console.log(obj, packet)
+          })
+          /*server.publish({
             topic: 'agent/connected',
             payload: JSON.stringify({
               agent: {
@@ -106,7 +125,7 @@ server.on('published', async (packet, client) => {
                 connected: agent.connected
               }
             })
-          })
+          })*/
         }
 
         // Store Metrics
